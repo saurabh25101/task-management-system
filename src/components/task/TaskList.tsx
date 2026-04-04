@@ -1,11 +1,6 @@
-import TaskCard from "./TaskCard";
+ import { Task } from "../../types";
+import TaskTable from "./TaskTable";
 
-export default function TaskList({ tasks }: unknown) {
-  return (
-    <div className="space-y-3">
-      {tasks.map((task: any) => (
-        <TaskCard key={task.id} task={task} />
-      ))}
-    </div>
-  );
+export default function TaskList({ tasks }: { tasks: Task[] }) {
+  return <TaskTable tasks={tasks} />;
 }
