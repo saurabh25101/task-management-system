@@ -1,5 +1,5 @@
  "use client";
-
+import { getTasks, createTask, deleteTask, toggleTask, updateTask } from "@/lib/api";
 import Navbar from "@/components/common/Navbar";
 import TaskModal from "@/components/task/TaskModal";
 import TaskTable from "@/components/task/TaskTable";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Task } from "@/types";
-import { getTasks, createTask, deleteTask, toggleTask } from "@/lib/api";
+ 
 
 export default function Dashboard() {
   const [open, setOpen] = useState(false);
@@ -24,22 +24,30 @@ export default function Dashboard() {
   };
 
   const handleAddTask = async (data: {
-    title: string;
-    description: string;
-  }) => {
+  title: string;
+  description: string;
+  status: string;
+}) => {
+  try {
     if (editTask) {
-      // ✅ EDIT
+      // ✅ UPDATE API CALL (MOST IMPORTANT)
+      const res = await updateTask(editTask.id, data);
+
       setTasks((prev) =>
         prev.map((t) =>
-          t.id === editTask.id ? { ...t, ...data } : t
+          t.id === editTask.id ? res.data : t
         )
       );
+
       setEditTask(null);
     } else {
       const res = await createTask(data);
       setTasks((prev) => [res.data, ...prev]);
     }
-  };
+  } catch (err: any) {
+    console.error(err);
+  }
+};
 
   const handleDelete = async (id: string) => {
     await deleteTask(id);

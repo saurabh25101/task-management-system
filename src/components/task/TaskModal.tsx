@@ -74,7 +74,7 @@ export default function TaskModal({
 
           {/* ✅ STATUS DROPDOWN */}
           <select
-            className="border p-2 rounded"
+            className="border p-2 rounded w-full"
             value={form.status}
             onChange={(e) =>
               setForm({ ...form, status: e.target.value })
