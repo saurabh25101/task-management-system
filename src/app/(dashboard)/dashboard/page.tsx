@@ -12,7 +12,7 @@ import { Task } from "@/types";
 export default function Dashboard() {
   const [open, setOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [editTask, setEditTask] = useState<Task | null>(null); // ✅ ADD
+  const [editTask, setEditTask] = useState<Task | null>(null);  
 
   useEffect(() => {
     fetchTasks();
@@ -30,7 +30,7 @@ export default function Dashboard() {
 }) => {
   try {
     if (editTask) {
-      // ✅ UPDATE API CALL (MOST IMPORTANT)
+  
       const res = await updateTask(editTask.id, data);
 
       setTasks((prev) =>
@@ -83,7 +83,7 @@ export default function Dashboard() {
 
           <Button
             onClick={() => {
-              setEditTask(null); // ✅ reset
+              setEditTask(null); 
               setOpen(true);
             }}
             className="flex items-center gap-2 bg-black text-white"
@@ -97,7 +97,7 @@ export default function Dashboard() {
           tasks={tasks}
           onDelete={handleDelete}
           onToggle={handleToggle}
-          onEdit={handleEdit} // ✅ ADD
+          onEdit={handleEdit} 
         />
       </div>
 
@@ -105,7 +105,7 @@ export default function Dashboard() {
         open={open}
         setOpen={setOpen}
         onSave={handleAddTask}
-        initialData={editTask || undefined} // ✅ ADD
+        initialData={editTask || undefined} 
       />
     </div>
   );

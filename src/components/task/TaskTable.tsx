@@ -1,12 +1,14 @@
- "use client";
+"use client";
 
-import { useState, useEffect } from "react";
-import { Task } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Task } from "@/types";
+import { useEffect, useState } from "react";
 
-import { Search, Trash2, FilterX, Pencil } from "lucide-react";
+import { FilterX, Pencil, Search, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import DeleteDialog from "./DeleteDialog";
 
 interface Props {
   tasks: Task[];
@@ -24,7 +26,8 @@ export default function TaskTable({
   const [search, setSearch] = useState("");
   const [filteredTasks, setFilteredTasks] = useState<Task[]>(tasks);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   useEffect(() => {
     const filtered = tasks.filter((task) =>
       task.title.toLowerCase().includes(search.toLowerCase())
@@ -42,6 +45,28 @@ export default function TaskTable({
       setSelectedIds([]);
     } else {
       setSelectedIds(filteredTasks.map((t) => t.id));
+    }
+  };
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+    setOpenDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      if (deleteId === "bulk") {
+        await Promise.all(selectedIds.map((id) => onDelete(id)));
+        toast.success("Tasks deleted successfully ");
+      } else if (deleteId) {
+        await onDelete(deleteId);
+        toast.success("Task deleted successfully ");
+      }
+
+      setOpenDialog(false);
+      setSelectedIds([]); // reset selection
+    } catch (err) {
+      console.error(err);
+      toast.error("Delete failed ");
     }
   };
 
@@ -84,7 +109,10 @@ export default function TaskTable({
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => selectedIds.forEach(onDelete)}
+              onClick={() => {
+                setDeleteId("bulk");
+                setOpenDialog(true);
+              }}
             >
               <Trash2 className="w-4 h-4 mr-1" />
               Delete ({selectedIds.length})
@@ -120,9 +148,8 @@ export default function TaskTable({
                 return (
                   <tr
                     key={task.id}
-                    className={`border-t ${
-                      checked ? "bg-blue-50" : "hover:bg-gray-50"
-                    }`}
+                    className={`border-t ${checked ? "bg-blue-50" : "hover:bg-gray-50"
+                      }`}
                   >
                     <td className="p-3 text-center">
                       <Checkbox
@@ -137,17 +164,18 @@ export default function TaskTable({
                       {new Date(task.createdAt).toLocaleDateString()}
                     </td>
 
-                    {/* ✅ STATUS CLICKABLE */}
+                    {/* 
+
+ STATUS CLICKABLE */}
                     <td className="p-3">
                       <span
                         onClick={() => onToggle(task.id)}
-                        className={`cursor-pointer px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                          task.status === "completed"
-                            ? "bg-green-100 text-green-700"
-                            : task.status === "inprogress"
+                        className={`cursor-pointer px-3 py-1 rounded-full text-xs font-medium capitalize ${task.status === "completed"
+                          ? "bg-green-100 text-green-700"
+                          : task.status === "inprogress"
                             ? "bg-blue-100 text-blue-700"
                             : "bg-yellow-100 text-yellow-700"
-                        }`}
+                          }`}
                       >
                         {task.status === "inprogress"
                           ? "In Progress"
@@ -175,7 +203,7 @@ export default function TaskTable({
                         <Button
                           size="icon"
                           variant="destructive"
-                         onClick={() => onDelete(task.id)}
+                          onClick={() => handleDeleteClick(task.id)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -186,6 +214,13 @@ export default function TaskTable({
               })}
             </tbody>
           </table>
+
+
+          <DeleteDialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            onConfirm={confirmDelete}
+          />
         </div>
       </div>
     </div>

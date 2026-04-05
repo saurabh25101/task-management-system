@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { loginUser } from "@/lib/api"; // ✅ FIX
+import { loginUser } from "@/lib/api";
+import { toast } from "sonner";  
 
 export default function LoginForm() {
   const router = useRouter();
@@ -15,7 +16,9 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    if (!email || !password) return;
+    if (!email || !password) {
+      toast.error("Please fill all fields ");  
+    }
 
     try {
       const res = await loginUser({ email, password });
@@ -24,10 +27,12 @@ export default function LoginForm() {
 
       localStorage.setItem("accessToken", token);
 
+      toast.success("Login successful "); 
+
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
-      alert("Login failed");
+      toast.error("Login failed ");  
     }
   };
 

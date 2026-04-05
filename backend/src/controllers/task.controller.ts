@@ -32,7 +32,9 @@ export const createTask = async (req: any, res: Response) => {
       data: {
         title,
         description,
-        status: status || "pending", // ✅ FIX
+        status: status || "pending", // 
+
+ FIX
         userId: req.userId,
       },
     });

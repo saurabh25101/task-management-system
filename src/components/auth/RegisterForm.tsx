@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { registerUser } from "@/lib/api"; // ✅ FIX
+import { registerUser } from "@/lib/api";
+import { toast } from "sonner"; // ✅ ADD
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -16,19 +17,25 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async () => {
-    if (!email || !password || !confirmPassword) return;
+    if (!email || !password || !confirmPassword) {
+      toast.error("Please fill all fields ❌"); // ✅ validation
+      return;
+    }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match ❌"); // ✅ replaced alert
       return;
     }
 
     try {
       await registerUser({ email, password });
+
+      toast.success("Registration successful ✅"); // ✅ success
+
       router.push("/login");
     } catch (err) {
       console.error(err);
-      alert("Registration failed");
+      toast.error("Registration failed ❌"); // ✅ error
     }
   };
 
