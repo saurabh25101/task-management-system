@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { registerUser } from "@/lib/api";
-import { toast } from "sonner"; // ✅ ADD
+import { toast } from "sonner"; //   ADD
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -18,24 +18,24 @@ export default function RegisterForm() {
 
   const handleRegister = async () => {
     if (!email || !password || !confirmPassword) {
-      toast.error("Please fill all fields ❌"); // ✅ validation
+      toast.error("Please fill all fields ❌"); //   validation
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match ❌"); // ✅ replaced alert
+      toast.error("Passwords do not match ❌"); //   replaced alert
       return;
     }
 
     try {
       await registerUser({ email, password });
 
-      toast.success("Registration successful ✅"); // ✅ success
+      toast.success("Registration successful  "); //   success
 
       router.push("/login");
     } catch (err) {
       console.error(err);
-      toast.error("Registration failed ❌"); // ✅ error
+      toast.error("Registration failed ❌"); //   error
     }
   };
 
