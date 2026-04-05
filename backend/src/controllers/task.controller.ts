@@ -32,9 +32,7 @@ export const createTask = async (req: any, res: Response) => {
       data: {
         title,
         description,
-        status: status || "pending", // 
-
- FIX
+        status: status || "pending", 
         userId: req.userId,
       },
     });
@@ -45,7 +43,7 @@ export const createTask = async (req: any, res: Response) => {
   }
 };
 
-// ================= UPDATE TASK (🔥 NEW ADD) =================
+ 
 export const updateTask = async (req: any, res: Response) => {
   try {
     const { id } = req.params;

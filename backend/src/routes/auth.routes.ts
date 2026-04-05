@@ -5,12 +5,12 @@ const router = express.Router();
 
 //
 
-REGISTER;
+register;
 router.post("/register", register);
 
 //
 
-LOGIN;
+login;
 router.post("/login", login);
 
 export default router;
