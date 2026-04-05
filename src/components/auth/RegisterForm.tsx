@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { registerUser } from "@/lib/api"; // ✅ FIX
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -22,11 +23,13 @@ export default function RegisterForm() {
       return;
     }
 
-    // 👉 yaha API call lagega
-    console.log({ email, password });
-
-    // redirect to login
-    router.push("/login");
+    try {
+      await registerUser({ email, password });
+      router.push("/login");
+    } catch (err) {
+      console.error(err);
+      alert("Registration failed");
+    }
   };
 
   return (
@@ -58,7 +61,6 @@ export default function RegisterForm() {
           Register
         </Button>
 
-        {/* LINK */}
         <p className="text-sm text-center">
           Already have an account?{" "}
           <span

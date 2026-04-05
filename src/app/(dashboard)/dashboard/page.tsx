@@ -5,33 +5,64 @@ import TaskModal from "@/components/task/TaskModal";
 import TaskTable from "@/components/task/TaskTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Task } from "@/types";
+import { getTasks, createTask, deleteTask, toggleTask } from "@/lib/api";
 
 export default function Dashboard() {
   const [open, setOpen] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [editTask, setEditTask] = useState<Task | null>(null); // ✅ ADD
 
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Learn Next.js",
-      status: "pending",
-      description: "Study routing",
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-  // ✅ ADD TASK FUNCTION
-  const handleAddTask = (data: { title: string; description: string }) => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: data.title,
-      description: data.description,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
+  const fetchTasks = async () => {
+    const res = await getTasks();
+    setTasks(res.data);
+  };
 
-    setTasks((prev) => [newTask, ...prev]);
+  const handleAddTask = async (data: {
+    title: string;
+    description: string;
+  }) => {
+    if (editTask) {
+      // ✅ EDIT
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === editTask.id ? { ...t, ...data } : t
+        )
+      );
+      setEditTask(null);
+    } else {
+      const res = await createTask(data);
+      setTasks((prev) => [res.data, ...prev]);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteTask(id);
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const handleToggle = async (id: string) => {
+    await toggleTask(id);
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              status: t.status === "completed" ? "pending" : "completed",
+            }
+          : t
+      )
+    );
+  };
+
+  const handleEdit = (task: Task) => {
+    setEditTask(task);
+    setOpen(true);
   };
 
   return (
@@ -40,12 +71,13 @@ export default function Dashboard() {
 
       <div className="p-6 max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-5">
-
           <h2 className="text-2xl font-semibold">My Tasks</h2>
 
-          {/* ✅ BUTTON */}
           <Button
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setEditTask(null); // ✅ reset
+              setOpen(true);
+            }}
             className="flex items-center gap-2 bg-black text-white"
           >
             <Plus className="w-4 h-4" />
@@ -53,11 +85,20 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        <TaskTable tasks={tasks} />
+        <TaskTable
+          tasks={tasks}
+          onDelete={handleDelete}
+          onToggle={handleToggle}
+          onEdit={handleEdit} // ✅ ADD
+        />
       </div>
 
-      {/* ✅ IMPORTANT: onSave pass karo */}
-      <TaskModal open={open} setOpen={setOpen} onSave={handleAddTask} />
+      <TaskModal
+        open={open}
+        setOpen={setOpen}
+        onSave={handleAddTask}
+        initialData={editTask || undefined} // ✅ ADD
+      />
     </div>
   );
 }

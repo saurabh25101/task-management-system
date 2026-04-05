@@ -1,13 +1,14 @@
-import { apiFetch } from "./api";
-
-export const loginUser = (email: string, password: string) =>
-  apiFetch("/auth/login", {
+  export const loginUser = async (data: {
+  email: string;
+  password: string;
+}) => {
+  const res = await fetch("http://localhost:5000/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
 
-export const registerUser = (email: string, password: string) =>
-  apiFetch("/auth/register", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
-  });
+  return res.json();
+};

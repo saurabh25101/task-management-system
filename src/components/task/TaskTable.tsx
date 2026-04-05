@@ -1,14 +1,26 @@
  "use client";
 
 import { useState, useEffect } from "react";
-import { Task } from "../../types";
+import { Task } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { Search, Trash2, FilterX, Pencil, Plus } from "lucide-react";
+import { Search, Trash2, FilterX, Pencil } from "lucide-react";
 
-export default function TaskTable({ tasks }: { tasks: Task[] }) {
+interface Props {
+  tasks: Task[];
+  onDelete: (id: string) => void;
+  onToggle: (id: string) => void;
+  onEdit: (task: Task) => void;
+}
+
+export default function TaskTable({
+  tasks,
+  onDelete,
+  onToggle,
+  onEdit,
+}: Props) {
   const [search, setSearch] = useState("");
   const [filteredTasks, setFilteredTasks] = useState<Task[]>(tasks);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -48,12 +60,9 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
 
   return (
     <div className="space-y-5">
-
       {/* TOP BAR */}
       <div className="flex justify-between items-center flex-wrap gap-3">
-
         <div className="flex gap-2 items-center flex-wrap">
-
           <div className="relative">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
             <Input
@@ -72,25 +81,29 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
           )}
 
           {selectedIds.length > 0 && (
-            <Button variant="destructive" size="sm">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => selectedIds.forEach(onDelete)}
+            >
               <Trash2 className="w-4 h-4 mr-1" />
               Delete ({selectedIds.length})
             </Button>
           )}
         </div>
-
-        
       </div>
 
       {/* TABLE */}
       <div className="border rounded-xl shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full  text-sm">
-
+          <table className="w-full text-sm">
             <thead className="bg-gray-100 text-left">
               <tr>
                 <th className="p-3 text-center">
-                  <Checkbox checked={allSelected} onCheckedChange={toggleSelectAll} />
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={() => toggleSelectAll()}
+                  />
                 </th>
                 <th className="p-3">Title</th>
                 <th className="p-3">Date</th>
@@ -118,18 +131,17 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
                       />
                     </td>
 
-                    {/* TITLE */}
                     <td className="p-3 font-medium">{task.title}</td>
 
-                    {/* DATE */}
                     <td className="p-3 text-gray-500">
                       {new Date(task.createdAt).toLocaleDateString()}
                     </td>
 
-                    {/* STATUS ✅ FIXED */}
+                    {/* ✅ STATUS CLICKABLE */}
                     <td className="p-3">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                        onClick={() => onToggle(task.id)}
+                        className={`cursor-pointer px-3 py-1 rounded-full text-xs font-medium capitalize ${
                           task.status === "completed"
                             ? "bg-green-100 text-green-700"
                             : task.status === "inprogress"
@@ -143,7 +155,6 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
                       </span>
                     </td>
 
-                    {/* DESCRIPTION */}
                     <td className="p-3 text-gray-600 max-w-xs truncate">
                       {task.description || "No description"}
                     </td>
@@ -151,11 +162,21 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
                     {/* ACTIONS */}
                     <td className="p-3 text-right">
                       <div className="flex justify-end gap-2">
-                        <Button size="icon" variant="outline">
+                        {/* ✏️ EDIT */}
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => onEdit(task)}
+                        >
                           <Pencil className="w-4 h-4" />
                         </Button>
 
-                        <Button size="icon" variant="destructive">
+                        {/* 🗑 DELETE */}
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                         onClick={() => onDelete(task.id)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -164,7 +185,6 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
                 );
               })}
             </tbody>
-
           </table>
         </div>
       </div>

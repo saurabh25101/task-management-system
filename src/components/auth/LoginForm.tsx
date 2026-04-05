@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { loginUser } from "@/lib/api"; // ✅ FIX
 
 export default function LoginForm() {
   const router = useRouter();
@@ -16,11 +17,18 @@ export default function LoginForm() {
   const handleLogin = async () => {
     if (!email || !password) return;
 
-    // 👉 yaha API call lagega
-    console.log({ email, password });
+    try {
+      const res = await loginUser({ email, password });
 
-    // dummy redirect
-    router.push("/dashboard");
+      const token = res.data?.accessToken || res.accessToken;
+
+      localStorage.setItem("accessToken", token);
+
+      router.push("/dashboard");
+    } catch (err) {
+      console.error(err);
+      alert("Login failed");
+    }
   };
 
   return (
@@ -45,7 +53,6 @@ export default function LoginForm() {
           Login
         </Button>
 
-        {/* LINK */}
         <p className="text-sm text-center">
           Don’t have an account?{" "}
           <span

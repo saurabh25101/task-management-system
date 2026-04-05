@@ -9,49 +9,84 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { TaskModalProps } from "@/types";
+import { useState, useEffect } from "react";
 
 export default function TaskModal({
   open,
   setOpen,
   onSave,
-}: TaskModalProps) {
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  initialData,
+}: any) {
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    status: "pending",
+  });
+
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        title: initialData.title || "",
+        description: initialData.description || "",
+        status: initialData.status || "pending",
+      });
+    } else {
+      setForm({
+        title: "",
+        description: "",
+        status: "pending",
+      });
+    }
+  }, [initialData]);
 
   const handleSubmit = () => {
-    if (!title.trim()) return;
+    if (!form.title.trim()) return;
 
-    onSave({ title, description });
-
-    setTitle("");
-    setDescription("");
+    onSave(form);
     setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-xl">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Task</DialogTitle>
+          <DialogTitle>
+            {initialData ? "Edit Task" : "Add Task"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <Input
-            placeholder="Enter task title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Title"
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
           />
 
           <Input
-            placeholder="Enter description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
           />
 
+          {/* ✅ STATUS DROPDOWN */}
+          <select
+            className="border p-2 rounded"
+            value={form.status}
+            onChange={(e) =>
+              setForm({ ...form, status: e.target.value })
+            }
+          >
+            <option value="pending">Pending</option>
+            <option value="inprogress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+
           <Button onClick={handleSubmit} className="w-full">
-            Save Task
+            {initialData ? "Update Task" : "Save Task"}
           </Button>
         </div>
       </DialogContent>
